@@ -1,0 +1,26 @@
+ticker,name,rank,mcap,mcap_b,cat
+BTC,Bitcoin,1,1.5T,1500,Currency
+ETH,Ethereum,2,239.7B,239.7,Chain
+BNB,BNB,4,93.5B,93.5,Chain / CeFi
+XRP,XRP,5,81.3B,81.3,Currency
+SOL,Solana,7,47.1B,47.1,Chain
+TRX,TRON,8,33.3B,33.3,Currency / Chain
+HYPE,Hyperliquid,9,18.6B,18.6,Chain
+ZEC,Zcash,11,9.3B,9.3,Currency
+XLM,Stellar,13,9.1B,9.1,Chain
+ADA,Cardano,14,8.4B,8.4,Chain
+XMR,Monero,15,6.7B,6.7,Currency
+LINK,Chainlink,16,6.5B,6.5,Infra / RWA
+BCH,Bitcoin Cash,18,5.9B,5.9,Currency
+TON,Toncoin,20,5.2B,5.2,Currency / Chain
+HBAR,Hedera,23,4.1B,4.1,Chain
+LTC,Litecoin,24,4B,4.0,Currency
+AVAX,Avalanche,25,3.8B,3.8,Chain / RWA
+SUI,Sui,27,3.5B,3.5,Chain
+NEAR,NEAR Protocol,30,3B,3.0,Chain
+CRO,Cronos,31,3B,3.0,Chain
+TAO,Bittensor,33,2.7B,2.7,Chain / AI
+MNT,Mantle,35,2.1B,2.1,Chain
+DOT,Polkadot,37,2B,2.0,Chain
+UNI,Uniswap,39,1.9B,1.9,DeFi
+ONDO,Ondo,43,1.7B,1.7,DeFi / RWA

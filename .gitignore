@@ -1,0 +1,9 @@
+# generated artifact (rebuild with: python3 analyze.py)
+data.json
+
+# tooling noise
+__pycache__/
+.playwright-mcp/
+*.png
+*.b64
+.DS_Store

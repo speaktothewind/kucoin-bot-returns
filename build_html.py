@@ -198,9 +198,6 @@ TEMPLATE = r"""<!DOCTYPE html>
       <p><b>Volatility pays, size doesn't.</b> Grid bots earn from oscillation, so the mega-caps return little
       (BTC ~5%, TRX ~3%, BNB ~9%, ETH ~12%) while smaller, more volatile large-caps return far more
       (ZEC ~73%, TAO/HYPE ~34%, UNI/NEAR ~29%). ZEC is an outlier driven by a large directional run and may not repeat.</p>
-      <p><b>For sizing your end-of-year deployment.</b> If you want a conservative plan, model with the
-      <b>9-mo avg</b> (or even the recent low) rather than peak figures — returns this late in the bear are the
-      compressed end of the range. Use the calculator with both "Latest" and "9-mo avg" to bracket a realistic weekly income.</p>
       <p><b>Caveats.</b> Backtested ≠ future; past bot performance assumes similar volatility and the same settings.
       A few source cells look like data glitches (e.g. Mantle Dec 25 = 1.76%) and are left raw — they don't change the
       conclusions. Returns are gross of trading fees and slippage. Tax: the calculator just applies a flat rate you enter —

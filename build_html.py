@@ -94,7 +94,7 @@ TEMPLATE = r"""<!DOCTYPE html>
     <span class="chk"><input type="checkbox" id="fEnable"> Exclude coins that returned below</span>
     <input type="number" id="fThresh" value="10" min="0" step="1"> %
     <span>on</span>
-    <select id="fBasis"><option value="latest">latest 12-mo %</option><option value="avg9">9-mo avg %</option></select>
+    <select id="fBasis"><option value="latest">latest 12-mo %</option><option value="avg9">through-cycle avg %</option></select>
     <span id="fCount"></span>
   </div>
 
@@ -127,7 +127,7 @@ TEMPLATE = r"""<!DOCTYPE html>
         <input type="number" id="rate" value="0" step="0.1">
         <div class="seg">
           <button id="srcLatest" class="on" data-src="latest">Latest</button>
-          <button id="srcAvg" data-src="avg9">9-mo avg</button>
+          <button id="srcAvg" data-src="avg9">Cycle avg</button>
         </div>
       </div>
 
@@ -175,29 +175,29 @@ TEMPLATE = r"""<!DOCTYPE html>
         <th data-s="mcap_b">Mkt&nbsp;cap</th>
         <th class="l" data-s="cat">Category</th>
         <th data-s="latest">Latest 12-mo&nbsp;%</th>
-        <th data-s="avg9">9-mo avg&nbsp;%</th>
+        <th data-s="avg9">Cycle avg&nbsp;%</th>
         <th data-s="wk_latest">Weekly* %</th>
-        <th class="l">Sep&rarr;May trend</th>
+        <th class="l">Trend</th>
       </tr></thead>
       <tbody></tbody>
     </table>
   </div>
-  <div class="foot">*Weekly % = Latest 12-mo % ÷ 52 (simple). Sparkline spans Sep 25 → May 26.</div>
+  <div class="foot">*Weekly % = Latest 12-mo % ÷ 52 (simple). Sparkline spans all monthly snapshots.</div>
 
   <h2>How to read this &amp; caveats</h2>
   <div class="panel">
     <div class="foot">
       <p><b>What the numbers are.</b> Each value is the <b>trailing-12-month backtested return</b> of running the bot
-      on that coin's pair on <b>KuCoin</b> (the KuCoin tab only, per your instruction). "9-mo avg" is the mean of the nine
-      monthly snapshots (Sept 2025 → May 2026) — a through-cycle figure that smooths out the bear-market compression.
-      "Latest" is the May 2026 snapshot.</p>
+      on that coin's pair on <b>KuCoin</b> (the KuCoin tab only, per your instruction). "Cycle avg" is the mean of all monthly
+      snapshots since Sept 2025 — a through-cycle figure that smooths out the bear-market compression.
+      "Latest" is the most recent snapshot (June 2026).</p>
       <p><b>Why the average is falling.</b> The trailing-12-month window now contains more of the bear market, so the
       portfolio average dropped from <b id="f1"></b> to <b id="f2"></b> (<b id="f3"></b>). Almost every coin's
-      latest reading sits at or near its own 9-month low — returns are compressed right now, which is consistent with
+      reading remains compressed versus late 2025 — which is consistent with
       being near a cycle bottom.</p>
       <p><b>Volatility pays, size doesn't.</b> Grid bots earn from oscillation, so the mega-caps return little
-      (BTC ~5%, TRX ~3%, BNB ~9%, ETH ~12%) while smaller, more volatile large-caps return far more
-      (ZEC ~73%, TAO/HYPE ~34%, UNI/NEAR ~29%). ZEC is an outlier driven by a large directional run and may not repeat.</p>
+      (BTC ~6%, TRX ~3%, BNB ~9%, ETH ~13%) while smaller, more volatile large-caps return far more
+      (ZEC ~79%, DEXE ~54%, ASTER ~38%, TAO/HYPE ~34%). ZEC is an outlier driven by a large directional run and may not repeat.</p>
       <p><b>Caveats.</b> Backtested ≠ future; past bot performance assumes similar volatility and the same settings.
       A few source cells look like data glitches (e.g. Mantle Dec 25 = 1.76%) and are left raw — they don't change the
       conclusions. Returns are gross of trading fees and slippage. Tax: the calculator just applies a flat rate you enter —
@@ -223,9 +223,9 @@ $("metaline").innerHTML =
 
 function renderCards(P){
   $("cards").innerHTML = [
-    ['Portfolio avg — latest', P.latest.toFixed(1)+'<small>%</small>', 'neu', P.n+' coins · May 2026'],
-    ['Through-cycle avg', P.avg9.toFixed(1)+'<small>%</small>', 'up', 'mean of 9 monthly snapshots'],
-    ['Change Sep&rarr;May', (((P.latest-P.first)/P.first)*100).toFixed(1)+'<small>%</small>', 'down', P.first.toFixed(1)+'% &rarr; '+P.latest.toFixed(1)+'%'],
+    ['Portfolio avg — latest', P.latest.toFixed(1)+'<small>%</small>', 'neu', P.n+' coins · '+DATA.months[DATA.months.length-1]],
+    ['Through-cycle avg', P.avg9.toFixed(1)+'<small>%</small>', 'up', 'mean of '+DATA.months.length+' monthly snapshots'],
+    ['Change '+DATA.months[0]+'&rarr;'+DATA.months[DATA.months.length-1], (((P.latest-P.first)/P.first)*100).toFixed(1)+'<small>%</small>', 'down', P.first.toFixed(1)+'% &rarr; '+P.latest.toFixed(1)+'%'],
     ['Latest range', P.minLat.toFixed(1)+'&ndash;'+P.maxLat.toFixed(1)+'<small>%</small>', 'neu', 'lowest&ndash;highest included'],
   ].map(c=>'<div class="card"><div class="k">'+c[0]+'</div><div class="v '+c[2]+'">'+c[1]+'</div><div class="note">'+c[3]+'</div></div>').join('');
 }
@@ -311,7 +311,7 @@ const coinMap={}; DATA.coins.forEach(c=>coinMap[c.ticker]=c);
 let basis='annual', src='latest';
 (function fillSel(){
   let opts='<option value="__PORT_LATEST">Portfolio avg — latest ('+M.port_latest.toFixed(1)+'%)</option>'+
-           '<option value="__PORT_AVG">Portfolio avg — 9-mo ('+M.port_avg9.toFixed(1)+'%)</option>'+
+           '<option value="__PORT_AVG">Portfolio avg — cycle ('+M.port_avg9.toFixed(1)+'%)</option>'+
            '<option value="__CUSTOM">Custom rate…</option>'+
            '<optgroup label="Coins">';
   DATA.coins.forEach(c=> opts+='<option value="'+c.ticker+'">'+c.ticker+' — '+c.name+'</option>');
@@ -396,7 +396,7 @@ function applyExcl(){
 function updatePortOptions(P){
   for(const op of $("coinSel").options){
     if(op.value==='__PORT_LATEST') op.textContent='Portfolio avg — latest ('+P.latest.toFixed(1)+'%)';
-    if(op.value==='__PORT_AVG') op.textContent='Portfolio avg — 9-mo ('+P.avg9.toFixed(1)+'%)';
+    if(op.value==='__PORT_AVG') op.textContent='Portfolio avg — cycle ('+P.avg9.toFixed(1)+'%)';
   }
 }
 function recompute(){

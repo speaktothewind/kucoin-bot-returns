@@ -7,7 +7,7 @@ snapshot is published.
 **Open:** [`KuCoin-Top25-Bot-Returns.html`](KuCoin-Top25-Bot-Returns.html) — double-click it; no server needed.
 
 It shows, for the top 25 coins by market cap:
-- Latest trailing-12-month bot return, the 9-month (through-cycle) average, and a per-coin trend sparkline.
+- Latest trailing-12-month bot return, the through-cycle average, and a per-coin trend sparkline.
 - An equal-weight portfolio trend chart (the average has been compressing as the bear market deepens).
 - A live filter to **exclude coins below a chosen % return** (rebalances the cards, chart and calculator).
 - A calculator: amount × return % × tax → **after-tax weekly / monthly / annual income**, plus a reverse

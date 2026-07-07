@@ -26,17 +26,21 @@ TEMPLATE = r"""<!DOCTYPE html>
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);
-       background-image:radial-gradient(1100px 420px at 75% -10%,rgba(255,206,61,.05),transparent 60%);
+       background-image:radial-gradient(1100px 420px at 78% -12%,rgba(255,206,61,.10),transparent 60%),radial-gradient(900px 380px at 12% -8%,rgba(55,211,188,.07),transparent 55%);
        color:var(--txt);font:15px/1.5 var(--sans);
        -webkit-font-smoothing:antialiased;padding:32px 20px 80px}
   .wrap{max-width:1120px;margin:0 auto}
   h1{font-size:26px;font-weight:800;margin:0 0 4px;letter-spacing:-.01em}
+  h1 em{color:var(--brand);font-style:normal}
   h2{font-size:16px;font-weight:800;margin:34px 0 14px;letter-spacing:.02em;text-transform:uppercase;color:var(--txt)}
   .sub{color:var(--mut);font-size:13.5px}
   .pill{display:inline-block;padding:2px 10px;border:1px solid var(--line-soft);border-radius:999px;
         color:var(--mut);font-size:12px;font-weight:600;margin-right:6px;background:var(--panel)}
   .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:20px}
-  .card{background:var(--panel);border:1px solid var(--line-soft);border-radius:14px;padding:16px 18px}
+  .card{background:var(--panel);border:1px solid var(--line-soft);border-radius:14px;padding:16px 18px;position:relative;overflow:hidden}
+  .card::before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:currentColor;opacity:.8}
+  .card.neu::before{opacity:.2}
+  .brand{color:var(--brand)}
   .card .k{color:var(--dim);font-size:11px;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.14em}
   .card .v{font-family:var(--mono);font-size:25px;font-weight:600;letter-spacing:-.01em}
   .card .v small{font-size:14px;color:var(--mut);font-weight:500}
@@ -102,7 +106,7 @@ TEMPLATE = r"""<!DOCTYPE html>
 <body>
 <div class="wrap">
 
-  <h1>KuCoin Grid-Bot Returns — Top 25 by Market Cap</h1>
+  <h1>KuCoin <em>Grid-Bot Returns</em> — Top 25 by Market Cap</h1>
   <div class="sub" id="metaline"></div>
 
   <div class="panel fbar" style="margin-top:18px">
@@ -238,11 +242,11 @@ $("metaline").innerHTML =
 
 function renderCards(P){
   $("cards").innerHTML = [
-    ['Portfolio avg — latest', P.latest.toFixed(1)+'<small>%</small>', 'neu', P.n+' coins · '+DATA.months[DATA.months.length-1]],
+    ['Portfolio avg — latest', P.latest.toFixed(1)+'<small>%</small>', 'brand', P.n+' coins · '+DATA.months[DATA.months.length-1]],
     ['Through-cycle avg', P.avg9.toFixed(1)+'<small>%</small>', 'up', 'mean of '+DATA.months.length+' monthly snapshots'],
     ['Change '+DATA.months[0]+'&rarr;'+DATA.months[DATA.months.length-1], (((P.latest-P.first)/P.first)*100).toFixed(1)+'<small>%</small>', 'down', P.first.toFixed(1)+'% &rarr; '+P.latest.toFixed(1)+'%'],
     ['Latest range', P.minLat.toFixed(1)+'&ndash;'+P.maxLat.toFixed(1)+'<small>%</small>', 'neu', 'lowest&ndash;highest included'],
-  ].map(c=>'<div class="card"><div class="k">'+c[0]+'</div><div class="v '+c[2]+'">'+c[1]+'</div><div class="note">'+c[3]+'</div></div>').join('');
+  ].map(c=>'<div class="card '+c[2]+'"><div class="k">'+c[0]+'</div><div class="v '+c[2]+'">'+c[1]+'</div><div class="note">'+c[3]+'</div></div>').join('');
 }
 
 $("f1").textContent = M.port_first.toFixed(1)+'%';

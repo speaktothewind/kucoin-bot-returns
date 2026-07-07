@@ -4,7 +4,12 @@ A self-contained HTML report + investment/tax calculator built from the **KuCoin
 monthly "BA" grid-bot backtest snapshots. Designed to be updated **once a month** as a new
 snapshot is published.
 
-**Open:** [`KuCoin-Top25-Bot-Returns.html`](KuCoin-Top25-Bot-Returns.html) — double-click it; no server needed.
+**Live:** https://speaktothewind.github.io/kucoin-bot-returns/ (GitHub Pages, auto-deploys on push)
+**Local:** [`KuCoin-Top25-Bot-Returns.html`](KuCoin-Top25-Bot-Returns.html) — double-click it; no server needed.
+
+Styling follows the shared **Session Ledger theme** (slate panels, Archivo + IBM Plex Mono, teal/orange
+signals, yellow accent) — same design language as the NAS100 P&L tracker. The theme lives in
+`build_html.py`; regenerating keeps it.
 
 It shows, for the top 25 coins by market cap:
 - Latest trailing-12-month bot return, the through-cycle average, and a per-coin trend sparkline.

@@ -11,63 +11,78 @@ TEMPLATE = r"""<!DOCTYPE html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KuCoin Bot Returns — Top 25 by Market Cap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
+  /* Session Ledger theme — matches nas100-pnl-tracker */
   :root{
-    --bg:#0b0e13; --panel:#141921; --panel2:#1b2230; --line:#252d3b;
-    --txt:#e6edf3; --mut:#8b97a7; --dim:#5d6776;
-    --accent:#2dd4a7; --accent2:#38bdf8; --warn:#f5a524; --bad:#f4607a;
-    --shadow:0 1px 0 rgba(255,255,255,.02),0 12px 30px -12px rgba(0,0,0,.6);
+    --bg:#14171d; --panel:#1e232d; --panel2:#262c39; --line:#333b4c; --line-soft:#2a3140;
+    --txt:#f0f3f8; --mut:#a7b0c0; --dim:#737d92;
+    --brand:#ffce3d; --brand-ink:#1d1608;
+    --accent:#37d3bc; --accent2:#ffce3d; --warn:#ffce3d; --bad:#ff8e5e;
+    --sans:"Archivo",-apple-system,sans-serif; --mono:"IBM Plex Mono","SF Mono",monospace;
+    --shadow:none;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:radial-gradient(1200px 600px at 70% -10%,#10212a 0%,var(--bg) 55%);
-       color:var(--txt);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  body{margin:0;background:var(--bg);
+       background-image:radial-gradient(1100px 420px at 75% -10%,rgba(255,206,61,.05),transparent 60%);
+       color:var(--txt);font:15px/1.5 var(--sans);
        -webkit-font-smoothing:antialiased;padding:32px 20px 80px}
   .wrap{max-width:1120px;margin:0 auto}
-  h1{font-size:26px;margin:0 0 4px;letter-spacing:-.02em}
-  h2{font-size:17px;margin:34px 0 14px;letter-spacing:-.01em;color:var(--txt)}
+  h1{font-size:26px;font-weight:800;margin:0 0 4px;letter-spacing:-.01em}
+  h2{font-size:16px;font-weight:800;margin:34px 0 14px;letter-spacing:.02em;text-transform:uppercase;color:var(--txt)}
   .sub{color:var(--mut);font-size:13.5px}
-  .pill{display:inline-block;padding:2px 9px;border:1px solid var(--line);border-radius:999px;
-        color:var(--mut);font-size:12px;margin-right:6px;background:var(--panel)}
+  .pill{display:inline-block;padding:2px 10px;border:1px solid var(--line-soft);border-radius:999px;
+        color:var(--mut);font-size:12px;font-weight:600;margin-right:6px;background:var(--panel)}
   .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:20px}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
-  .card .k{color:var(--mut);font-size:12.5px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
-  .card .v{font-size:27px;font-weight:650;letter-spacing:-.02em}
+  .card{background:var(--panel);border:1px solid var(--line-soft);border-radius:14px;padding:16px 18px}
+  .card .k{color:var(--dim);font-size:11px;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.14em}
+  .card .v{font-family:var(--mono);font-size:25px;font-weight:600;letter-spacing:-.01em}
   .card .v small{font-size:14px;color:var(--mut);font-weight:500}
   .card .note{color:var(--dim);font-size:12px;margin-top:5px}
-  .up{color:var(--accent)} .down{color:var(--bad)} .neu{color:var(--accent2)}
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow)}
+  .up{color:var(--accent)} .down{color:var(--bad)} .neu{color:var(--txt)}
+  .panel{background:var(--panel);border:1px solid var(--line-soft);border-radius:14px;padding:20px 22px}
   /* calculator */
   .calc{display:grid;grid-template-columns:1.05fr 1fr;gap:0;overflow:hidden;padding:0}
-  .calc .inp{padding:22px 24px;border-right:1px solid var(--line)}
-  .calc .out{padding:22px 24px;background:linear-gradient(180deg,#11202a,#0f1620)}
-  label{display:block;color:var(--mut);font-size:12.5px;margin:14px 0 6px;letter-spacing:.02em}
+  .calc .inp{padding:22px 24px;border-right:1px solid var(--line-soft)}
+  .calc .out{padding:22px 24px;background:var(--panel2)}
+  label{display:block;color:var(--dim);font-size:11px;font-weight:700;text-transform:uppercase;
+        letter-spacing:.14em;margin:16px 0 7px}
   label:first-child{margin-top:0}
   input[type=number],select{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);
-        border-radius:10px;padding:11px 12px;font-size:15px;outline:none}
-  input[type=number]:focus,select:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(56,189,248,.12)}
+        font-family:var(--mono);font-weight:500;
+        border-radius:8px;padding:11px 12px;font-size:15px;outline:none;transition:border-color .15s ease}
+  .calc .out input[type=number]{background:var(--panel)}
+  input[type=number]:focus,select:focus{border-color:var(--brand);box-shadow:none}
   .row{display:flex;gap:10px}
   .seg{display:flex;gap:6px;flex-wrap:wrap}
   .seg button,.preset{background:var(--panel2);border:1px solid var(--line);color:var(--mut);border-radius:8px;
-        padding:7px 11px;font-size:12.5px;cursor:pointer;transition:.12s}
-  .seg button.on{background:var(--accent2);border-color:var(--accent2);color:#04121b;font-weight:600}
-  .seg button:hover,.preset:hover{border-color:var(--accent2);color:var(--txt)}
-  .hero{font-size:42px;font-weight:720;letter-spacing:-.03em;color:var(--accent);line-height:1.05}
-  .hero small{font-size:15px;color:var(--mut);font-weight:500}
-  .outk{color:var(--mut);font-size:12.5px;text-transform:uppercase;letter-spacing:.04em}
+        font-family:var(--sans);font-weight:700;
+        padding:7px 12px;font-size:12.5px;cursor:pointer;transition:.12s}
+  .seg button.on{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+  .seg button:hover,.preset:hover{border-color:var(--brand);color:var(--txt)}
+  .hero{font-family:var(--mono);font-size:40px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1.05}
+  .hero small{font-family:var(--sans);font-size:15px;color:var(--mut);font-weight:600}
+  .outk{color:var(--dim);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;margin-top:18px}
-  .stat .s{font-size:19px;font-weight:600} .stat .l{color:var(--mut);font-size:12px}
+  .stat .s{font-family:var(--mono);font-size:18px;font-weight:600} .stat .l{color:var(--dim);font-size:12px;font-weight:600}
   .muted{color:var(--mut)} .small{font-size:12.5px}
   /* table */
   table{width:100%;border-collapse:collapse;font-size:13.5px}
-  th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
-  th{color:var(--mut);font-weight:500;font-size:12px;cursor:pointer;user-select:none;position:sticky;top:0;background:var(--panel)}
+  th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line-soft);white-space:nowrap}
+  td{font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums}
+  th{color:var(--dim);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.08em;
+     cursor:pointer;user-select:none;position:sticky;top:0;background:var(--panel)}
   th:hover{color:var(--txt)}
   th.l,td.l{text-align:left}
+  td.l{font-family:var(--sans)}
   tbody tr{cursor:pointer}
   tbody tr:hover{background:var(--panel2)}
-  .tk{font-weight:650} .nm{color:var(--mut);font-size:12px;margin-left:6px}
+  .tk{font-weight:800} .nm{color:var(--dim);font-size:12px;margin-left:6px;font-weight:500}
   .barwrap{display:inline-block;width:120px;vertical-align:middle}
-  .tag{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .tag{font-family:var(--sans);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+       color:var(--dim);border:1px solid var(--line-soft);border-radius:6px;padding:2px 7px}
   .chartbox{position:relative}
   .leg{color:var(--mut);font-size:12px}
   .foot{color:var(--dim);font-size:12.5px;line-height:1.7;margin-top:8px}
@@ -75,13 +90,13 @@ TEMPLATE = r"""<!DOCTYPE html>
   .fbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13.5px;color:var(--mut)}
   .fbar input[type=number]{width:74px;padding:7px 9px}
   .fbar select{width:auto;padding:7px 9px}
-  .fbar .chk{display:flex;align-items:center;gap:8px;color:var(--txt);cursor:pointer}
-  .fbar input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
+  .fbar .chk{display:flex;align-items:center;gap:8px;color:var(--txt);font-weight:600;cursor:pointer}
+  .fbar input[type=checkbox]{width:16px;height:16px;accent-color:var(--brand);cursor:pointer}
   #fCount{font-size:12.5px;margin-left:2px}
   tbody tr.excl{opacity:.3} tbody tr.excl:hover{opacity:.6}
-  a{color:var(--accent2)}
+  a{color:var(--brand)}
   @media(max-width:880px){.cards{grid-template-columns:repeat(2,1fr)}.calc{grid-template-columns:1fr}
-    .calc .inp{border-right:none;border-bottom:1px solid var(--line)} .barwrap{width:74px}}
+    .calc .inp{border-right:none;border-bottom:1px solid var(--line-soft)} .barwrap{width:74px}}
 </style>
 </head>
 <body>
@@ -243,20 +258,20 @@ function drawChart(S){
   const Y=v=> padT + (1-(v-lo)/(hi-lo))*(h-padT-padB);
   let grid='', axis='';
   for(let g=lo; g<=hi; g+=4){ const y=Y(g);
-    grid+='<line x1="'+padL+'" y1="'+y+'" x2="'+(w-padR)+'" y2="'+y+'" stroke="#252d3b"/>';
-    axis+='<text x="'+(padL-8)+'" y="'+(y+4)+'" fill="#5d6776" font-size="11" text-anchor="end">'+g+'%</text>';
+    grid+='<line x1="'+padL+'" y1="'+y+'" x2="'+(w-padR)+'" y2="'+y+'" stroke="#2a3140"/>';
+    axis+='<text x="'+(padL-8)+'" y="'+(y+4)+'" fill="#737d92" font-size="11" text-anchor="end">'+g+'%</text>';
   }
   let labels='';
-  DATA.months.forEach((m,i)=> labels+='<text x="'+X(i)+'" y="'+(h-8)+'" fill="#8b97a7" font-size="11" text-anchor="middle">'+m+'</text>');
+  DATA.months.forEach((m,i)=> labels+='<text x="'+X(i)+'" y="'+(h-8)+'" fill="#a7b0c0" font-size="11" text-anchor="middle">'+m+'</text>');
   const path=s.map((v,i)=>(i?'L':'M')+X(i)+' '+Y(v)).join(' ');
   const area=path+' L'+X(s.length-1)+' '+(h-padB)+' L'+X(0)+' '+(h-padB)+' Z';
   let dots='';
-  s.forEach((v,i)=>{ dots+='<circle cx="'+X(i)+'" cy="'+Y(v)+'" r="3.5" fill="#0b0e13" stroke="#2dd4a7" stroke-width="2"/>'+
-    '<text x="'+X(i)+'" y="'+(Y(v)-10)+'" fill="#e6edf3" font-size="11" text-anchor="middle">'+v.toFixed(1)+'</text>'; });
+  s.forEach((v,i)=>{ dots+='<circle cx="'+X(i)+'" cy="'+Y(v)+'" r="3.5" fill="#14171d" stroke="#37d3bc" stroke-width="2"/>'+
+    '<text x="'+X(i)+'" y="'+(Y(v)-10)+'" fill="#f0f3f8" font-size="11" text-anchor="middle">'+v.toFixed(1)+'</text>'; });
   $("chart").innerHTML='<svg viewBox="0 0 '+w+' '+h+'" width="100%" preserveAspectRatio="xMidYMid meet">'+
     '<defs><linearGradient id="g" x1="0" x2="0" y1="0" y2="1">'+
-    '<stop offset="0" stop-color="#2dd4a7" stop-opacity=".28"/><stop offset="1" stop-color="#2dd4a7" stop-opacity="0"/></linearGradient></defs>'+
-    grid+axis+'<path d="'+area+'" fill="url(#g)"/><path d="'+path+'" fill="none" stroke="#2dd4a7" stroke-width="2.5"/>'+dots+labels+'</svg>';
+    '<stop offset="0" stop-color="#37d3bc" stop-opacity=".28"/><stop offset="1" stop-color="#37d3bc" stop-opacity="0"/></linearGradient></defs>'+
+    grid+axis+'<path d="'+area+'" fill="url(#g)"/><path d="'+path+'" fill="none" stroke="#37d3bc" stroke-width="2.5"/>'+dots+labels+'</svg>';
 }
 
 /* ---- sparkline helper ---- */
@@ -271,7 +286,7 @@ function spark(series){
     const y=pad+(1-(v-mn)/span)*(h-2*pad); pts.push([x,y]); });
   const d=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
   const last=pts[pts.length-1], first=pts[0];
-  const col = series[series.length-1] >= series.find(v=>v!==null) ? '#2dd4a7' : '#f4607a';
+  const col = series[series.length-1] >= series.find(v=>v!==null) ? '#37d3bc' : '#ff8e5e';
   return '<svg class="barwrap" viewBox="0 0 '+w+' '+h+'" height="26">'+
     '<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="1.6"/>'+
     '<circle cx="'+last[0].toFixed(1)+'" cy="'+last[1].toFixed(1)+'" r="2.4" fill="'+col+'"/></svg>';

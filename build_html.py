@@ -99,6 +99,9 @@ TEMPLATE = r"""<!DOCTYPE html>
   #fCount{font-size:12.5px;margin-left:2px}
   tbody tr.excl{opacity:.3} tbody tr.excl:hover{opacity:.6}
   a{color:var(--brand)}
+  .appnav{display:flex;gap:18px;flex-wrap:wrap;margin-top:8px}
+  .appnav a{color:var(--brand);font-weight:600;font-size:13.5px;text-decoration:none}
+  .appnav a:hover{text-decoration:underline}
   @media(max-width:880px){.cards{grid-template-columns:repeat(2,1fr)}.calc{grid-template-columns:1fr}
     .calc .inp{border-right:none;border-bottom:1px solid var(--line-soft)} .barwrap{width:74px}}
 </style>
@@ -108,6 +111,10 @@ TEMPLATE = r"""<!DOCTYPE html>
 
   <h1>KuCoin <em>Grid-Bot Returns</em> — Top 25 by Market Cap</h1>
   <div class="sub" id="metaline"></div>
+  <nav class="appnav">
+    <a href="https://fire-planner-dgw.pages.dev">FIRE Planner</a>
+    <a href="https://nas100-pnl-tracker.pages.dev">NAS100 Ledger</a>
+  </nav>
 
   <div class="panel fbar" style="margin-top:18px">
     <span class="chk"><input type="checkbox" id="fEnable"> Exclude coins that returned below</span>

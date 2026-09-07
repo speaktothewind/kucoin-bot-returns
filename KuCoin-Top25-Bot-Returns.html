@@ -92,6 +92,12 @@
   #fCount{font-size:12.5px;margin-left:2px}
   tbody tr.excl{opacity:.3} tbody tr.excl:hover{opacity:.6}
   a{color:var(--brand)}
+  .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+  .savebtn{background:var(--brand);border:1px solid var(--brand);color:var(--brand-ink);border-radius:8px;
+        font-family:var(--sans);font-weight:800;padding:9px 18px;font-size:13px;cursor:pointer;
+        transition:.12s;flex-shrink:0;margin-top:2px}
+  .savebtn:hover{filter:brightness(1.08)}
+  .savebtn.saved{background:var(--accent);border-color:var(--accent);color:#08221d}
   @media(max-width:880px){.cards{grid-template-columns:repeat(2,1fr)}.calc{grid-template-columns:1fr}
     .calc .inp{border-right:none;border-bottom:1px solid var(--line-soft)} .barwrap{width:74px}}
 </style>
@@ -99,8 +105,13 @@
 <body>
 <div class="wrap">
 
-  <h1>KuCoin <em>Grid-Bot Returns</em> — Top 25 by Market Cap</h1>
-  <div class="sub" id="metaline"></div>
+  <div class="topbar">
+    <div>
+      <h1>KuCoin <em>Grid-Bot Returns</em> — Top 25 by Market Cap</h1>
+      <div class="sub" id="metaline"></div>
+    </div>
+    <button id="saveBtn" class="savebtn" title="Save the current calculator &amp; filter settings in this browser">Save</button>
+  </div>
 
   <div class="panel fbar" style="margin-top:18px">
     <span class="chk"><input type="checkbox" id="fEnable"> Exclude coins that returned below</span>
@@ -430,8 +441,39 @@ function recompute(){
 $("fBasis").addEventListener('change',recompute);
 $("fEnable").addEventListener('change',recompute);
 
+/* ---- save / restore (localStorage, per browser) ---- */
+const SAVE_KEY='kucoin-bot-calc-v1';
+function saveState(){
+  const s={fEnable:$("fEnable").checked, fThresh:$("fThresh").value, fBasis:$("fBasis").value,
+    amount:$("amount").value, coinSel:$("coinSel").value, basis, src,
+    rate:$("rate").value, tax:$("tax").value, target:$("target").value};
+  localStorage.setItem(SAVE_KEY,JSON.stringify(s));
+  const b=$("saveBtn"); b.textContent='Saved \u2713'; b.classList.add('saved');
+  setTimeout(()=>{ b.textContent='Save'; b.classList.remove('saved'); },1600);
+}
+function restoreState(){
+  let s=null; try{ s=JSON.parse(localStorage.getItem(SAVE_KEY)); }catch(e){}
+  if(!s) return false;
+  $("fEnable").checked=!!s.fEnable;
+  if(s.fThresh!==undefined)$("fThresh").value=s.fThresh;
+  if(s.fBasis)$("fBasis").value=s.fBasis;
+  if(s.amount!==undefined)$("amount").value=s.amount;
+  if(s.tax!==undefined)$("tax").value=s.tax;
+  if(s.target!==undefined)$("target").value=s.target;
+  basis=s.basis||'annual'; src=s.src||'latest';
+  $("srcLatest").classList.toggle('on',src==='latest');
+  $("srcAvg").classList.toggle('on',src==='avg9');
+  setBasisBtns();
+  $("coinSel").value=s.coinSel||'__PORT_AVG';
+  if($("coinSel").selectedIndex<0) $("coinSel").value='__PORT_AVG';
+  recompute();
+  if(s.rate!==undefined){ $("rate").value=s.rate; calc(); }
+  return true;
+}
+$("saveBtn").onclick=saveState;
+
 renderTable(); setBasisBtns(); recompute();
-$("coinSel").value='__PORT_AVG'; loadCoin();
+if(!restoreState()){ $("coinSel").value='__PORT_AVG'; loadCoin(); }
 </script>
 </body>
 </html>

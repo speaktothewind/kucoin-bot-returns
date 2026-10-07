@@ -1,26 +1,26 @@
 ticker,name,rank,mcap,mcap_b,cat
-BTC,Bitcoin,1,1.6T,1600,Currency
-ETH,Ethereum,2,298.4B,298.4,Chain
-BNB,BNB,4,91.9B,91.9,Chain / CeFi
-XRP,XRP,5,86.9B,86.9,Currency
-SOL,Solana,7,60.5B,60.5,Chain
-TRX,TRON,8,31.5B,31.5,Currency / Chain
-HYPE,Hyperliquid,9,21.2B,21.2,Chain
-ZEC,Zcash,10,14.5B,14.5,Currency
-XMR,Monero,12,9.8B,9.8,Currency
-LINK,Chainlink,14,8.6B,8.6,Infra / RWA
-ADA,Cardano,15,7.4B,7.4,Chain
-XLM,Stellar,16,6.2B,6.2,Chain
-BCH,Bitcoin Cash,17,5B,5.0,Currency
-GRAM,Gram (prev. Toncoin),22,3.9B,3.9,Currency
-LTC,Litecoin,23,3.8B,3.8,Currency
-UNI,Uniswap,24,3.6B,3.6,DeFi
-HBAR,Hedera,26,3.3B,3.3,Chain
-AVAX,Avalanche,27,3.2B,3.2,Chain / RWA
-SUI,Sui,29,3B,3.0,Chain
-CRO,Cronos,31,2.7B,2.7,Chain
-TAO,Bittensor,33,2.6B,2.6,Chain / AI
-NEAR,NEAR Protocol,34,2.6B,2.6,Chain
-AAVE,Aave,38,2B,2.0,DeFi
-WLFI,World Liberty Financial,41,1.8B,1.8,DeFi
-MNT,Mantle,42,1.8B,1.8,Chain
+BTC,Bitcoin,1,1.7T,1700,Currency
+ETH,Ethereum,2,327.6B,327.6,Chain
+BNB,BNB,4,102.1B,102.1,Chain / CeFi
+XRP,XRP,5,93.9B,93.9,Currency
+SOL,Solana,7,69.4B,69.4,Chain
+TRX,TRON,8,32.1B,32.1,Currency / Chain
+ZEC,Zcash,9,23.9B,23.9,Currency
+HYPE,Hyperliquid,10,22.3B,22.3,Chain
+LINK,Chainlink,12,10.7B,10.7,Infra / RWA
+XMR,Monero,13,10.2B,10.2,Currency
+ADA,Cardano,14,9.1B,9.1,Chain
+XLM,Stellar,16,7.9B,7.9,Chain
+NEAR,NEAR Protocol,17,6.8B,6.8,Chain
+BCH,Bitcoin Cash,18,6.1B,6.1,Currency
+UNI,Uniswap,19,5.5B,5.5,DeFi
+LTC,Litecoin,20,5.2B,5.2,Currency
+AVAX,Avalanche,23,4.8B,4.8,Chain / RWA
+SUI,Sui,24,4.8B,4.8,Chain
+HBAR,Hedera,26,4.6B,4.6,Chain
+GRAM,Gram (prev. Toncoin),28,4.2B,4.2,Currency
+QNT,Quant,29,3.5B,3.5,Infra / RWA
+TAO,Bittensor,30,3.5B,3.5,Chain / AI
+CRO,Cronos,32,3.4B,3.4,Chain
+ENA,Ethena,36,2.7B,2.7,DeFi
+AAVE,Aave,39,2.5B,2.5,DeFi

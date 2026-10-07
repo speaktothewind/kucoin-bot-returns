@@ -130,7 +130,7 @@ TEMPLATE = r"""<!DOCTYPE html>
 
   <div class="cards" id="cards"></div>
 
-  <h2>The 12-month average is compressing as the bear market deepens</h2>
+  <h2>The 12-month average fell through the bear market and has been flat since April</h2>
   <div class="panel chartbox">
     <div class="leg">Equal-weight average trailing-12-month bot return across the top 25 coins, by snapshot month.</div>
     <div id="chart"></div>
@@ -220,17 +220,16 @@ TEMPLATE = r"""<!DOCTYPE html>
       <p><b>What the numbers are.</b> Each value is the <b>trailing-12-month backtested return</b> of running the bot
       on that coin's pair on <b>KuCoin</b> (the KuCoin tab only, per your instruction). "Cycle avg" is the mean of all monthly
       snapshots since Sept 2025 — a through-cycle figure that smooths out the bear-market compression.
-      "Latest" is the most recent snapshot (June 2026).</p>
+      "Latest" is the most recent snapshot (<span id="f0"></span>).</p>
       <p><b>Why the average is falling.</b> The trailing-12-month window now contains more of the bear market, so the
       portfolio average dropped from <b id="f1"></b> to <b id="f2"></b> (<b id="f3"></b>). Almost every coin's
       reading remains compressed versus late 2025 — which is consistent with
       being near a cycle bottom.</p>
       <p><b>Volatility pays, size doesn't.</b> Grid bots earn from oscillation, so the mega-caps return little
-      (BTC ~6%, TRX ~3%, BNB ~9%, ETH ~13%) while smaller, more volatile large-caps return far more
-      (ZEC ~79%, DEXE ~54%, ASTER ~38%, TAO/HYPE ~34%). ZEC is an outlier driven by a large directional run and may not repeat.</p>
+      (BTC ~6%, TRX ~2%, BNB ~8%, ETH ~12%) while smaller, more volatile large-caps return far more
+      (ZEC ~82%, NEAR ~37%, TAO ~35%, UNI/HYPE ~31%). ZEC is an outlier driven by a large directional run and may not repeat.</p>
       <p><b>Caveats.</b> Backtested ≠ future; past bot performance assumes similar volatility and the same settings.
-      A few source cells look like data glitches (e.g. Mantle Dec 25 = 1.76%) and are left raw — they don't change the
-      conclusions. Returns are gross of trading fees and slippage. Tax: the calculator just applies a flat rate you enter —
+      A few source cells may be data glitches and are left raw — they don't change the conclusions. Returns are gross of trading fees and slippage. Tax: the calculator just applies a flat rate you enter —
       it is <b>not tax advice</b>; AU bot-trading profit is generally ordinary income, so confirm your marginal rate.</p>
     </div>
   </div>
@@ -260,6 +259,7 @@ function renderCards(P){
   ].map(c=>'<div class="card '+c[2]+'"><div class="k">'+c[0]+'</div><div class="v '+c[2]+'">'+c[1]+'</div><div class="note">'+c[3]+'</div></div>').join('');
 }
 
+$("f0").textContent = DATA.months[DATA.months.length-1];
 $("f1").textContent = M.port_first.toFixed(1)+'%';
 $("f2").textContent = M.port_latest.toFixed(1)+'%';
 $("f3").textContent = M.port_change_pct.toFixed(1)+'% relative';

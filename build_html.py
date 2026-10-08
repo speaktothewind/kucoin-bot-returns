@@ -545,9 +545,9 @@ function saveState(){
   const s={mode, fEnable:$("fEnable").checked, fThresh:$("fThresh").value, fBasis:$("fBasis").value,
     amount:$("amount").value, coinSel:$("coinSel").value, basis, src,
     rate:$("rate").value, tax:$("tax").value, target:$("target").value};
-  try{ localStorage.setItem(SAVE_KEY,JSON.stringify(s)); }catch(e){}
-  const b=$("saveBtn"); b.textContent='Saved \u2713'; b.classList.add('saved');
-  setTimeout(()=>{ b.textContent='Save'; b.classList.remove('saved'); },1600);
+  let ok=true; try{ localStorage.setItem(SAVE_KEY,JSON.stringify(s)); }catch(e){ ok=false; }   // e.g. a private window
+  const b=$("saveBtn"); b.textContent= ok? 'Saved \u2713' : 'Can\u2019t save in this browser'; b.classList.toggle('saved',ok);
+  setTimeout(()=>{ b.textContent='Save'; b.classList.remove('saved'); }, ok? 1600 : 3000);
 }
 function restoreState(){
   let s=null; try{ s=JSON.parse(localStorage.getItem(SAVE_KEY)); }catch(e){}

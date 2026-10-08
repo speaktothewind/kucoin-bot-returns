@@ -98,6 +98,16 @@ TEMPLATE = r"""<!DOCTYPE html>
   .fbar input[type=checkbox]{width:16px;height:16px;accent-color:var(--brand);cursor:pointer}
   #fCount{font-size:12.5px;margin-left:2px}
   tbody tr.excl{opacity:.3} tbody tr.excl:hover{opacity:.6}
+  /* coin picker */
+  .pbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13.5px;color:var(--mut)}
+  .pbar .plabel{color:var(--txt);font-weight:600}
+  #pickInfo{font-size:12.5px}
+  .pickcol{display:none;width:30px}
+  #tbl.picking .pickcol{display:table-cell}
+  .pickcol input{width:16px;height:16px;accent-color:var(--brand);cursor:pointer;vertical-align:middle}
+  .pickcol input:disabled{cursor:not-allowed;opacity:.35}
+  tbody tr.unpicked{opacity:.45} tbody tr.unpicked:hover{opacity:.75}
+  .empty{color:var(--mut);font-size:14px;padding:40px 0;text-align:center}
   a{color:var(--brand)}
   .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
   .savebtn{background:var(--brand);border:1px solid var(--brand);color:var(--brand-ink);border-radius:8px;
@@ -114,13 +124,27 @@ TEMPLATE = r"""<!DOCTYPE html>
 
   <div class="topbar">
     <div>
-      <h1>KuCoin <em>Grid-Bot Returns</em> — Top 25 by Market Cap</h1>
+      <h1>KuCoin <em>Grid-Bot Returns</em> — <span id="viewTitle">Top 25 by Market Cap</span></h1>
       <div class="sub" id="metaline"></div>
     </div>
     <button id="saveBtn" class="savebtn" title="Save the current calculator &amp; filter settings in this browser">Save</button>
   </div>
 
-  <div class="panel fbar" style="margin-top:18px">
+  <div class="panel pbar" style="margin-top:18px">
+    <span class="plabel">Coins</span>
+    <div class="seg" id="picker">
+      <button data-m="top25" class="on">Top 25</button>
+      <button data-m="top30">Top 30</button>
+      <button data-m="top45">Top 45</button>
+      <button data-m="top50">Top 50</button>
+      <button data-m="all">All <span id="allN"></span></button>
+      <button data-m="mine">My coins</button>
+    </div>
+    <span id="pickInfo"></span>
+    <button id="clearPicks" class="preset" style="display:none">Clear all</button>
+  </div>
+
+  <div class="panel fbar" style="margin-top:10px">
     <span class="chk"><input type="checkbox" id="fEnable"> Exclude coins that returned below</span>
     <input type="number" id="fThresh" value="10" min="0" step="1"> %
     <span>on</span>
@@ -132,7 +156,7 @@ TEMPLATE = r"""<!DOCTYPE html>
 
   <h2>The 12-month average fell through the bear market and has been flat since April</h2>
   <div class="panel chartbox">
-    <div class="leg">Equal-weight average trailing-12-month bot return across the top 25 coins, by snapshot month.</div>
+    <div class="leg">Equal-weight average trailing-12-month bot return across the <span id="legSet">top 25 coins</span>, by snapshot month.</div>
     <div id="chart"></div>
   </div>
 
@@ -196,10 +220,11 @@ TEMPLATE = r"""<!DOCTYPE html>
     </div>
   </div>
 
-  <h2>Top 25 coins — KuCoin tab (click a row to load it into the calculator)</h2>
+  <h2><span id="tblTitle">Top 25 coins</span> — KuCoin tab (click a row to load it into the calculator)</h2>
   <div class="panel" style="padding:8px 10px;overflow:auto">
     <table id="tbl">
       <thead><tr>
+        <th class="l pickcol"></th>
         <th class="l" data-s="rank">#</th>
         <th class="l" data-s="ticker">Coin</th>
         <th data-s="mcap_b">Mkt&nbsp;cap</th>
@@ -247,27 +272,27 @@ const M = DATA.meta;
 $("metaline").innerHTML =
   '<span class="pill">Source: '+M.source+'</span>'+
   '<span class="pill">Window: '+M.window+'</span>'+
-  '<span class="pill">'+M.n_coins+' coins · top 25 by market cap</span>'+
+  '<span class="pill" id="pillSet"></span>'+
   '<span class="pill">Generated '+M.generated+'</span>';
 
 function renderCards(P){
   $("cards").innerHTML = [
     ['Portfolio avg — latest', P.latest.toFixed(1)+'<small>%</small>', 'brand', P.n+' coins · '+DATA.months[DATA.months.length-1]],
     ['Through-cycle avg', P.avg9.toFixed(1)+'<small>%</small>', 'up', 'mean of '+DATA.months.length+' monthly snapshots'],
-    ['Change '+DATA.months[0]+'&rarr;'+DATA.months[DATA.months.length-1], (((P.latest-P.first)/P.first)*100).toFixed(1)+'<small>%</small>', 'down', P.first.toFixed(1)+'% &rarr; '+P.latest.toFixed(1)+'%'],
+    ['Change '+DATA.months[P.firstIdx]+'&rarr;'+DATA.months[DATA.months.length-1],
+      P.chgN? (((P.chgTo-P.chgFrom)/P.chgFrom)*100).toFixed(1)+'<small>%</small>' : '&mdash;', 'down',
+      P.chgN? P.chgFrom.toFixed(1)+'% &rarr; '+P.chgTo.toFixed(1)+'%'+(P.chgN<P.n? ' &middot; same '+P.chgN+' of '+P.n+' coins' : '') : 'no coin has both months'],
     ['Latest range', P.minLat.toFixed(1)+'&ndash;'+P.maxLat.toFixed(1)+'<small>%</small>', 'neu', 'lowest&ndash;highest included'],
   ].map(c=>'<div class="card '+c[2]+'"><div class="k">'+c[0]+'</div><div class="v '+c[2]+'">'+c[1]+'</div><div class="note">'+c[3]+'</div></div>').join('');
 }
 
 $("f0").textContent = DATA.months[DATA.months.length-1];
-$("f1").textContent = M.port_first.toFixed(1)+'%';
-$("f2").textContent = M.port_latest.toFixed(1)+'%';
-$("f3").textContent = M.port_change_pct.toFixed(1)+'% relative';
 
 /* ---- line chart of portfolio series ---- */
 function drawChart(S){
   const w=1040,h=230,padL=42,padR=16,padT=18,padB=28;
-  const s=S, mn=Math.min(...s), mx=Math.max(...s);
+  const s=S, pts=s.map((v,i)=>[i,v]).filter(p=>p[1]!==null), vals=pts.map(p=>p[1]);
+  const mn=Math.min(...vals), mx=Math.max(...vals);
   const lo=Math.floor((mn-2)/2)*2, hi=Math.ceil((mx+2)/2)*2;
   const X=i=> padL + i*(w-padL-padR)/(s.length-1);
   const Y=v=> padT + (1-(v-lo)/(hi-lo))*(h-padT-padB);
@@ -278,10 +303,10 @@ function drawChart(S){
   }
   let labels='';
   DATA.months.forEach((m,i)=> labels+='<text x="'+X(i)+'" y="'+(h-8)+'" fill="#a7b0c0" font-size="11" text-anchor="middle">'+m+'</text>');
-  const path=s.map((v,i)=>(i?'L':'M')+X(i)+' '+Y(v)).join(' ');
-  const area=path+' L'+X(s.length-1)+' '+(h-padB)+' L'+X(0)+' '+(h-padB)+' Z';
+  const path=pts.map((p,j)=>(j?'L':'M')+X(p[0])+' '+Y(p[1])).join(' ');
+  const area=path+' L'+X(pts[pts.length-1][0])+' '+(h-padB)+' L'+X(pts[0][0])+' '+(h-padB)+' Z';
   let dots='';
-  s.forEach((v,i)=>{ dots+='<circle cx="'+X(i)+'" cy="'+Y(v)+'" r="3.5" fill="#14171d" stroke="#37d3bc" stroke-width="2"/>'+
+  pts.forEach(([i,v])=>{ dots+='<circle cx="'+X(i)+'" cy="'+Y(v)+'" r="3.5" fill="#14171d" stroke="#37d3bc" stroke-width="2"/>'+
     '<text x="'+X(i)+'" y="'+(Y(v)-10)+'" fill="#f0f3f8" font-size="11" text-anchor="middle">'+v.toFixed(1)+'</text>'; });
   $("chart").innerHTML='<svg viewBox="0 0 '+w+' '+h+'" width="100%" preserveAspectRatio="xMidYMid meet">'+
     '<defs><linearGradient id="g" x1="0" x2="0" y1="0" y2="1">'+
@@ -310,14 +335,18 @@ function spark(series){
 /* ---- table ---- */
 let sortKey='rank', sortDir=1;
 function renderTable(){
-  const rows=[...DATA.coins].sort((a,b)=>{
+  const picking=mode==='mine', full=picking && picks.size>=MAX_PICK;
+  $("tbl").classList.toggle('picking',picking);
+  const rows=[...(picking? DATA.coins : selectedCoins())].sort((a,b)=>{
     let x=a[sortKey],y=b[sortKey];
     if(typeof x==='string'){return sortDir*x.localeCompare(y);}
     return sortDir*(x-y);
   });
   const tb=document.querySelector('#tbl tbody');
   tb.innerHTML=rows.map(c=>{
-    return '<tr data-tk="'+c.ticker+'">'+
+    const on=picking && picks.has(c.ticker);
+    return '<tr data-tk="'+c.ticker+'"'+(picking&&!on?' class="unpicked"':'')+'>'+
+      '<td class="l pickcol">'+(picking? '<input type="checkbox" class="pk" data-tk="'+c.ticker+'"'+(on?' checked':'')+(!on&&full?' disabled':'')+' aria-label="Pick '+c.ticker+'">' : '')+'</td>'+
       '<td class="l muted">'+c.rank+'</td>'+
       '<td class="l"><span class="tk">'+c.ticker+'</span><span class="nm">'+c.name+'</span></td>'+
       '<td>'+c.mcap+'</td>'+
@@ -328,7 +357,8 @@ function renderTable(){
       '<td class="l">'+spark(c.series)+'</td>'+
     '</tr>';
   }).join('');
-  tb.querySelectorAll('tr').forEach(tr=>tr.onclick=()=>{ $("coinSel").value=tr.dataset.tk; loadCoin(); });
+  tb.querySelectorAll('tr').forEach(tr=>tr.onclick=()=>{ if(!inCalcList(tr.dataset.tk)) return; $("coinSel").value=tr.dataset.tk; loadCoin(); });
+  tb.querySelectorAll('input.pk').forEach(cb=>{ cb.onclick=e=>e.stopPropagation(); cb.onchange=()=>togglePick(cb.dataset.tk,cb.checked); });
   applyExcl();
 }
 document.querySelectorAll('#tbl th[data-s]').forEach(th=>th.onclick=()=>{
@@ -339,20 +369,24 @@ document.querySelectorAll('#tbl th[data-s]').forEach(th=>th.onclick=()=>{
 /* ---- calculator ---- */
 const coinMap={}; DATA.coins.forEach(c=>coinMap[c.ticker]=c);
 let basis='annual', src='latest';
-(function fillSel(){
-  let opts='<option value="__PORT_LATEST">Portfolio avg — latest ('+M.port_latest.toFixed(1)+'%)</option>'+
-           '<option value="__PORT_AVG">Portfolio avg — cycle ('+M.port_avg9.toFixed(1)+'%)</option>'+
+function fillSel(list){
+  const sel=$("coinSel"), keep=sel.value;
+  let opts='<option value="__PORT_LATEST">Portfolio avg — latest</option>'+
+           '<option value="__PORT_AVG">Portfolio avg — cycle</option>'+
            '<option value="__CUSTOM">Custom rate…</option>'+
            '<optgroup label="Coins">';
-  DATA.coins.forEach(c=> opts+='<option value="'+c.ticker+'">'+c.ticker+' — '+c.name+'</option>');
-  $("coinSel").innerHTML=opts+'</optgroup>';
-})();
+  list.forEach(c=> opts+='<option value="'+c.ticker+'">'+c.ticker+' — '+c.name+'</option>');
+  sel.innerHTML=opts+'</optgroup>';
+  sel.value=keep;
+  if(sel.selectedIndex<0) sel.value= PORT? '__PORT_AVG' : '__CUSTOM';
+}
+function inCalcList(tk){ return [...$("coinSel").options].some(o=>o.value===tk); }
 
 function currentRate(){
   const v=$("coinSel").value;
   if(v==='__CUSTOM') return parseFloat($("rate").value)||0;
-  if(v==='__PORT_LATEST') return PORT.latest;
-  if(v==='__PORT_AVG') return PORT.avg9;
+  if(v==='__PORT_LATEST') return PORT? PORT.latest : 0;
+  if(v==='__PORT_AVG') return PORT? PORT.avg9 : 0;
   const c=coinMap[v]; if(!c) return 0;
   return src==='avg9'? c.avg9 : c.latest;
 }
@@ -399,15 +433,55 @@ $("srcAvg").onclick=()=>{src='avg9';$("srcAvg").classList.add('on');$("srcLatest
 document.querySelectorAll('.preset').forEach(p=>p.onclick=()=>{$("tax").value=p.dataset.t;calc();});
 ['amount','rate','tax','target'].forEach(id=>$(id).addEventListener('input',()=>{ if(id==='rate')$("coinSel").value='__CUSTOM'; calc();}));
 
+/* ---- which coins the page is about: Top N, All, or My coins (client-side) ---- */
+const MODES={top25:25,top30:30,top45:45,top50:50}, MAX_PICK=30, PICK_KEY='kucoin-bot-pick-v1';
+const validMode=m=> m==='all' || m==='mine' || Object.prototype.hasOwnProperty.call(MODES,m);
+let mode='top25', picks=loadPicks();   // picks: null until My coins is first opened
+function loadPicks(){
+  try{ const s=JSON.parse(localStorage.getItem(PICK_KEY));
+       if(s && Array.isArray(s.picks)) return new Set(s.picks.filter(t=>coinMap[t]).slice(0,MAX_PICK)); }catch(e){}
+  return null;
+}
+function savePicks(){ try{ localStorage.setItem(PICK_KEY,JSON.stringify({picks:[...picks]})); }catch(e){} }
+function selectedCoins(){
+  if(mode==='all') return DATA.coins.slice();
+  if(mode==='mine') return DATA.coins.filter(c=>picks.has(c.ticker));
+  return DATA.coins.slice(0,MODES[mode]);
+}
+function useMode(m){
+  mode=validMode(m)? m : 'top25';
+  if(mode==='mine' && !picks){ picks=new Set(DATA.coins.slice(0,25).map(c=>c.ticker)); savePicks(); }
+  updatePickerUI();
+}
+function updatePickerUI(){
+  document.querySelectorAll('#picker button').forEach(b=>b.classList.toggle('on',b.dataset.m===mode));
+  const n=selectedCoins().length, mine=mode==='mine', all=mode==='all';
+  $("clearPicks").style.display= mine? '' : 'none';
+  $("pickInfo").textContent= mine? n+' of '+MAX_PICK+' picked' : '';
+  $("viewTitle").textContent= mine? 'My Coins ('+n+')' : all? 'All '+n+' Coins by Market Cap' : 'Top '+n+' by Market Cap';
+  $("legSet").textContent= mine? 'coins you picked' : all? 'all '+n+' coins' : 'top '+n+' coins';
+  $("tblTitle").textContent= mine? 'All '+DATA.coins.length+' coins — tick up to '+MAX_PICK : all? 'All '+n+' coins' : 'Top '+n+' coins';
+  $("pillSet").textContent= mine? n+' coins · your pick' : all? n+' coins · every coin tested' : n+' coins · top '+n+' by market cap';
+}
+function togglePick(tk,on){
+  if(on && picks.size>=MAX_PICK){ renderTable(); return; }
+  if(on) picks.add(tk); else picks.delete(tk);
+  savePicks(); updatePickerUI(); renderTable(); recompute();
+}
+document.querySelectorAll('#picker button').forEach(b=>b.onclick=()=>{ useMode(b.dataset.m); renderTable(); recompute(); });
+$("clearPicks").onclick=()=>{ picks=new Set(); savePicks(); updatePickerUI(); renderTable(); recompute(); };
+
 /* ---- filter + portfolio recompute (client-side, no re-pull) ---- */
 let PORT=null;
 function getIncluded(){
-  if(!$("fEnable").checked) return DATA.coins.slice();
+  const base=selectedCoins();
+  if(!$("fEnable").checked) return base;
   const t=parseFloat($("fThresh").value)||0, b=$("fBasis").value;
-  const r=DATA.coins.filter(c=> (b==='avg9'?c.avg9:c.latest) >= t);
-  return r.length? r : DATA.coins.slice();   // never let the basket go empty
+  const r=base.filter(c=> (b==='avg9'?c.avg9:c.latest) >= t);
+  return r.length? r : base;   // never let the filter empty the basket
 }
 function computePort(list){
+  if(!list.length) return null;
   const series=[], ns=[];
   for(let i=0;i<DATA.months.length;i++){
     const v=list.map(c=>c.series[i]).filter(x=>x!==null);
@@ -416,30 +490,47 @@ function computePort(list){
   }
   const avg9=list.reduce((a,c)=>a+c.avg9,0)/list.length;
   const lats=list.map(c=>c.latest);
-  return {series, ns, latest:series[series.length-1], first:series.find(x=>x!==null),
+  const firstIdx=series.findIndex(x=>x!==null), lastIdx=series.length-1;
+  // like-for-like: the change compares only coins that have a figure in both the first and the latest month
+  const both=list.filter(c=>c.series[firstIdx]!==null && c.series[lastIdx]!==null);
+  const avgAt=i=> both.reduce((a,c)=>a+c.series[i],0)/both.length;
+  return {series, ns, latest:[...series].reverse().find(x=>x!==null), first:series[firstIdx], firstIdx,
+          chgN:both.length, chgFrom:both.length? avgAt(firstIdx) : null, chgTo:both.length? avgAt(lastIdx) : null,
           avg9, n:list.length, minLat:Math.min(...lats), maxLat:Math.max(...lats)};
 }
 function applyExcl(){
-  const inc=new Set(getIncluded().map(c=>c.ticker));
-  document.querySelectorAll('#tbl tbody tr').forEach(tr=>tr.classList.toggle('excl',!inc.has(tr.dataset.tk)));
+  const inc=new Set(getIncluded().map(c=>c.ticker)), sel=new Set(selectedCoins().map(c=>c.ticker));
+  document.querySelectorAll('#tbl tbody tr').forEach(tr=>tr.classList.toggle('excl',sel.has(tr.dataset.tk)&&!inc.has(tr.dataset.tk)));
 }
 function updatePortOptions(P){
   for(const op of $("coinSel").options){
-    if(op.value==='__PORT_LATEST') op.textContent='Portfolio avg — latest ('+P.latest.toFixed(1)+'%)';
-    if(op.value==='__PORT_AVG') op.textContent='Portfolio avg — cycle ('+P.avg9.toFixed(1)+'%)';
+    if(op.value==='__PORT_LATEST'){ op.textContent='Portfolio avg — latest ('+(P? P.latest.toFixed(1)+'%' : '—')+')'; op.disabled=!P; }
+    if(op.value==='__PORT_AVG'){ op.textContent='Portfolio avg — cycle ('+(P? P.avg9.toFixed(1)+'%' : '—')+')'; op.disabled=!P; }
   }
 }
+function setNotes(P){
+  if(!P || !P.chgN){ ['f1','f2','f3'].forEach(id=>$(id).textContent='—'); return; }
+  const F=P.chgFrom, L=P.chgTo;   // the same like-for-like figures as the Change card
+  $("f1").textContent=F.toFixed(1)+'%';
+  $("f2").textContent=L.toFixed(1)+'%';
+  $("f3").textContent=((L-F)/F*100).toFixed(1)+'% relative';
+}
 function recompute(){
-  const inc=getIncluded(), incSet=new Set(inc.map(c=>c.ticker));
-  const excl=DATA.coins.filter(c=>!incSet.has(c.ticker)).map(c=>c.ticker);
+  const sel=selectedCoins(), inc=getIncluded(), incSet=new Set(inc.map(c=>c.ticker));
+  const excl=sel.filter(c=>!incSet.has(c.ticker)).map(c=>c.ticker);
   PORT=computePort(inc);
-  drawChart(PORT.series);
-  renderCards(PORT);
+  fillSel(sel);
+  if(PORT){ drawChart(PORT.series); renderCards(PORT); }
+  else {
+    $("chart").innerHTML='<div class="empty">Tick coins in the table below to see their average here.</div>';
+    $("cards").innerHTML='<div class="card neu" style="grid-column:1/-1"><div class="k">No coins picked</div><div class="note">Tick coins in the table below to see their numbers.</div></div>';
+  }
   updatePortOptions(PORT);
+  setNotes(PORT);
   applyExcl();
-  $("fCount").innerHTML = $("fEnable").checked
-    ? ('<span class="up">'+inc.length+'</span> of '+DATA.coins.length+' coins included'+(excl.length?' &middot; excluded: '+excl.join(', '):''))
-    : ('all '+DATA.coins.length+' coins included');
+  $("fCount").innerHTML = !sel.length ? 'no coins picked' : $("fEnable").checked
+    ? ('<span class="up">'+inc.length+'</span> of '+sel.length+' coins included'+(excl.length?' &middot; excluded: '+excl.join(', '):''))
+    : ('all '+sel.length+' coins included');
   const v=$("coinSel").value;
   if(v==='__PORT_LATEST'||v==='__PORT_AVG') $("rate").value=currentRate().toFixed(2);
   calc();
@@ -451,10 +542,10 @@ $("fEnable").addEventListener('change',recompute);
 /* ---- save / restore (localStorage, per browser) ---- */
 const SAVE_KEY='kucoin-bot-calc-v1';
 function saveState(){
-  const s={fEnable:$("fEnable").checked, fThresh:$("fThresh").value, fBasis:$("fBasis").value,
+  const s={mode, fEnable:$("fEnable").checked, fThresh:$("fThresh").value, fBasis:$("fBasis").value,
     amount:$("amount").value, coinSel:$("coinSel").value, basis, src,
     rate:$("rate").value, tax:$("tax").value, target:$("target").value};
-  localStorage.setItem(SAVE_KEY,JSON.stringify(s));
+  try{ localStorage.setItem(SAVE_KEY,JSON.stringify(s)); }catch(e){}
   const b=$("saveBtn"); b.textContent='Saved \u2713'; b.classList.add('saved');
   setTimeout(()=>{ b.textContent='Save'; b.classList.remove('saved'); },1600);
 }
@@ -471,15 +562,18 @@ function restoreState(){
   $("srcLatest").classList.toggle('on',src==='latest');
   $("srcAvg").classList.toggle('on',src==='avg9');
   setBasisBtns();
+  useMode(s.mode); renderTable();   // an older save has no mode: Top 25
+  recompute();                      // fills the calculator list for that set
   $("coinSel").value=s.coinSel||'__PORT_AVG';
-  if($("coinSel").selectedIndex<0) $("coinSel").value='__PORT_AVG';
+  if($("coinSel").selectedIndex<0 || $("coinSel").selectedOptions[0].disabled) $("coinSel").value= PORT? '__PORT_AVG' : '__CUSTOM';
   recompute();
   if(s.rate!==undefined){ $("rate").value=s.rate; calc(); }
   return true;
 }
 $("saveBtn").onclick=saveState;
 
-renderTable(); setBasisBtns(); recompute();
+$("allN").textContent=DATA.coins.length;
+updatePickerUI(); renderTable(); setBasisBtns(); recompute();
 if(!restoreState()){ $("coinSel").value='__PORT_AVG'; loadCoin(); }
 </script>
 </body>

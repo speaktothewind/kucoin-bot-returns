@@ -48,16 +48,19 @@ for m in coins_meta:
                   "wk_latest":round(latest/52,3), "wk_avg":round(a9/52,3)})
 
 # ---- portfolio (equal-weight) per month over coins present that month ----
+# Summary figures describe the page's default view, the top 25 (coins.csv may hold every tested coin; the page
+# recomputes them for whatever set the viewer picks).
+top = coins[:25]
 port_series, port_n = [], []
 for i in range(len(DATES)):
-    vals = [c["series"][i] for c in coins if c["series"][i] is not None]
+    vals = [c["series"][i] for c in top if c["series"][i] is not None]
     port_series.append(round(sum(vals)/len(vals), 2) if vals else None)
     port_n.append(len(vals))
 
 port_latest = next(x for x in reversed(port_series) if x is not None)
 port_first  = next(x for x in port_series if x is not None)
-port_avg9   = round(sum(c["avg9"] for c in coins)/len(coins), 2)
-lat_sorted  = sorted(c["latest"] for c in coins)
+port_avg9   = round(sum(c["avg9"] for c in top)/len(top), 2)
+lat_sorted  = sorted(c["latest"] for c in top)
 median_latest = lat_sorted[len(lat_sorted)//2]
 
 meta = {
@@ -75,7 +78,7 @@ payload = {"coins":coins, "months":MONTHS, "port_series":port_series, "port_n":p
 
 # ---- console summary ----
 print(f"Months loaded: {MONTHS[0]} -> {MONTHS[-1]}  ({len(MONTHS)})   Coins: {len(coins)}")
-print("Portfolio equal-weight avg trailing-12-mo return by month:")
+print("Top 25 equal-weight avg trailing-12-mo return by month:")
 for m, v, n in zip(MONTHS, port_series, port_n):
     print(f"  {m}: {v:6.2f}%  (n={n})")
 print(f"Latest {port_latest:.2f}%  |  through-cycle {port_avg9:.2f}%  |  "

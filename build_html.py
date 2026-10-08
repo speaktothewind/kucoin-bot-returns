@@ -135,7 +135,7 @@ TEMPLATE = r"""<!DOCTYPE html>
     <div class="seg" id="picker">
       <button data-m="top25" class="on">Top 25</button>
       <button data-m="top30">Top 30</button>
-      <button data-m="top45">Top 45</button>
+      <button data-m="top40">Top 40</button>
       <button data-m="top50">Top 50</button>
       <button data-m="all">All <span id="allN"></span></button>
       <button data-m="mine">My coins</button>
@@ -434,7 +434,7 @@ document.querySelectorAll('.preset').forEach(p=>p.onclick=()=>{$("tax").value=p.
 ['amount','rate','tax','target'].forEach(id=>$(id).addEventListener('input',()=>{ if(id==='rate')$("coinSel").value='__CUSTOM'; calc();}));
 
 /* ---- which coins the page is about: Top N, All, or My coins (client-side) ---- */
-const MODES={top25:25,top30:30,top45:45,top50:50}, MAX_PICK=30, PICK_KEY='kucoin-bot-pick-v1';
+const MODES={top25:25,top30:30,top40:40,top50:50}, MAX_PICK=30, PICK_KEY='kucoin-bot-pick-v1';
 const validMode=m=> m==='all' || m==='mine' || Object.prototype.hasOwnProperty.call(MODES,m);
 let mode='top25', picks=loadPicks();   // picks: null until My coins is first opened
 function loadPicks(){

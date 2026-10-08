@@ -11,7 +11,7 @@ Styling follows the shared **Session Ledger theme** (slate panels, Archivo + IBM
 signals, yellow accent) — same design language as the NAS100 P&L tracker. The theme lives in
 `build_html.py`; regenerating keeps it.
 
-A picker at the top switches the whole page between **Top 25 / 30 / 45 / 50 / All** coins by market cap, or
+A picker at the top switches the whole page between **Top 25 / 30 / 40 / 50 / All** coins by market cap, or
 **My coins** — your own pick of up to 30 (ticked in the table, remembered in your browser). It opens on Top 25.
 
 It shows, for the chosen coins:
